@@ -264,8 +264,7 @@ npm install
         },
         "_id": "6710f80d6576ff8c098a16d4"
       },
-      "message": "Operator successfully modified to 'OR', rule_name updated to '(age > 30 OR salary < 
-                  50000) OR (department = 'Engineering')'",
+      "message": "Operator successfully modified to 'OR', rule_name updated to '(age > 30 OR salary < 50000) OR (department = 'Engineering')'",
        "success": true
      }
      ```
@@ -326,8 +325,7 @@ npm install
         },
         "_id": "6710f80d6576ff8c098a16d4"
     },
-     "message": "Operand for attribute 'age' successfully modified to '40', rule_name updated to '(age 
-                 40 30 OR salary < 50000) OR (department = 'Engineering')'",
+     "message": "Operand for attribute 'age' successfully modified to '40', rule_name updated to '(age > 40 OR salary < 50000) OR (department = 'Engineering')'",
      "success": true
    }
      ```

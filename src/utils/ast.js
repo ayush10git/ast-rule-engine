@@ -1,27 +1,26 @@
 class Node {
   constructor(type, left = null, right = null, value = null) {
-    this.type = type; // "operator" or "operand"
+    this.type = type; 
     this.left = left;
     this.right = right;
-    this.value = value; // for operand nodes, like { attribute: "age", operator: ">", value: 30 }
+    this.value = value; 
   }
 }
 
 function precedence(operator) {
   if (operator === "AND") {
-    return 2; // Higher precedence
+    return 2;
   } else if (operator === "OR") {
-    return 1; // Lower precedence
+    return 1;
   } else {
-    return 0; // Default
+    return 0;
   }
 }
 
 function createRule(ruleString) {
   const operators = ["AND", "OR"];
-  const regex = /\s*(\(|\)|AND|OR)\s*/g; // Split on AND, OR, and parentheses
+  const regex = /\s*(\(|\)|AND|OR)\s*/g;
 
-  // Split the ruleString by the regex and filter empty tokens
   const tokens = ruleString.split(regex).filter((token) => token.trim() !== "");
 
   const stack = [];
@@ -46,18 +45,15 @@ function createRule(ruleString) {
       }
       stack.pop(); // Remove the '('
     } else {
-      // Handling "attribute operator value" format, accounting for quoted strings
       const parts = token.match(/(\w+)\s*(>|<|=)\s*(['"][^'"]+['"]|\w+)/);
 
       if (parts) {
         const attribute = parts[1];
         const operator = parts[2];
-        let value = parts[3].replace(/['"]/g, ""); // Strip surrounding quotes if any
+        let value = parts[3].replace(/['"]/g, ""); 
 
-        // Convert to number if value is numeric, otherwise leave as string
         value = isNaN(value) ? value : Number(value);
 
-        // Create an operand node
         output.push(
           new Node("operand", null, null, {
             attribute,
@@ -72,12 +68,10 @@ function createRule(ruleString) {
     }
   });
 
-  // Pop remaining operators from the stack
   while (stack.length) {
     output.push(stack.pop());
   }
 
-  // Build the AST from output
   const astStack = [];
   output.forEach((token) => {
     if (typeof token === "string") {
@@ -89,10 +83,9 @@ function createRule(ruleString) {
     }
   });
 
-  return astStack.length === 1 ? astStack[0] : null; // Return root node or null if invalid
+  return astStack.length === 1 ? astStack[0] : null;
 }
 
-// Combine rules by connecting them with an AND operator
 function combineRules(rules) {
   if (!rules.length) return null;
 
@@ -104,18 +97,15 @@ function combineRules(rules) {
   return root;
 }
 
-// Function to evaluate the AST against given data
 function evaluateRule(ast, data) {
     if (ast.type === "operand") {
       const { attribute, operator, value } = ast.value;
       let conditionMet = false;
   
-      // Evaluate the condition based on the operator
       if (operator === ">") conditionMet = data[attribute] > value;
       if (operator === "<") conditionMet = data[attribute] < value;
       if (operator === "=") conditionMet = data[attribute] === value;
   
-      // If the condition is not met, return a detailed message
       if (!conditionMet) {
         return {
           success: false,
@@ -132,10 +122,10 @@ function evaluateRule(ast, data) {
   
       if (ast.value === "AND") {
         if (!leftResult.success) {
-          return leftResult; // Return the detailed failure message for AND
+          return leftResult;
         }
         if (!rightResult.success) {
-          return rightResult; // Return the detailed failure message for AND
+          return rightResult;
         }
         return {
           success: true,
@@ -163,7 +153,6 @@ function evaluateRule(ast, data) {
   }
   
 
-// Bonus: Validate rule string (syntax check or custom logic)
 function validateRuleString(ruleString) {
   const validOperators = ["AND", "OR", ">", "<", "="];
   const validPattern = new RegExp(
@@ -188,7 +177,6 @@ function validateRuleString(ruleString) {
   return isValidFormat && isBalanced(ruleString);
 }
 
-// Bonus: Modify the operator in a rule (AND/OR)
 function modifyRuleOperator(ast, newOperator) {
   if (
     ast &&
@@ -200,7 +188,6 @@ function modifyRuleOperator(ast, newOperator) {
   return ast;
 }
 
-// Bonus: Modify operand values (e.g., change age or salary in the rule)
 function modifyRuleOperand(ast, attribute, newValue) {
   if (ast && ast.type === "operand" && ast.value.attribute === attribute) {
     ast.value.value = newValue;
@@ -210,7 +197,6 @@ function modifyRuleOperand(ast, attribute, newValue) {
   return ast;
 }
 
-// Ensure that we're exporting all the necessary functions and classes
 export {
   Node,
   createRule,

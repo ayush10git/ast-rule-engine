@@ -334,3 +334,5 @@ npm install
 Ensure MongoDB is running before starting the app, or the database connection will fail.
 
 You can use tools like Postman
+
+Also, update the ruleId field with valid Rule ID that you have created in your Database

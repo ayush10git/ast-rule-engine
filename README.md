@@ -329,3 +329,8 @@ npm install
      "success": true
    }
      ```
+
+## Note:
+Ensure MongoDB is running before starting the app, or the database connection will fail.
+
+You can use tools like Postman

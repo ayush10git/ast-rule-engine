@@ -1,179 +1,333 @@
-Rule Engine API
-This project is a backend API for creating, modifying, evaluating, and combining rules based on Abstract Syntax Trees (AST). The rules can be combined using logical operators, and the API allows dynamic modification of operands and operators within the rules.
+# AST Rule Engine
 
-Table of Contents
-Installation
-Running the App
-Dependencies
-API Endpoints
-Create Rule
-Combine Rules
-Evaluate Rule
-Modify Rule Operator
-Modify Rule Operand
+The Rule Engine API is a backend system that allows for creating, modifying, evaluating, and combining rules based on Abstract Syntax Trees (AST). The API supports dynamic rule manipulation using logical operators and operands.
 
+## Installation
 
-Installation
-Before running the application, ensure that you have the following installed:
+Ensure you have Node.js and MongoDB installed before starting.
+1. Clone the repository:
 
-Node.js
-MongoDB
-Steps
-Clone the repository:
-bash
-Copy code
+```bash
 git clone https://github.com/your-repo/rule-engine.git
 cd rule-engine
-Install the required dependencies:
-bash
-Copy code
+```
+
+2. Install the required dependencies:
+
+```bash
 npm install
-Create a .env file at the root of the project and set the following environment variables:
-bash
-Copy code
-MONGO_URI=mongodb://localhost:27017/rule-engine-db
+```
+
+3. Create a .env file at the root of the project and add the following variables:
+```bash
+MONGO_URI=mongodb+srv://<username>:<password>@<cluster-url>
 PORT=5000
-Replace the MONGO_URI with your MongoDB connection string if different, and adjust the PORT if needed.
+```
+Replace MONGO_URI with your MongoDB connection string if different, and adjust PORT as necessary.
 
-Running the App
-After installing the dependencies, you can run the application in development mode using:
-
-bash
-Copy code
+## Running the App
+To start the app in development mode, use:
+```bash
 npm run dev
-This will start the server on the port specified in your .env file. By default, it will run on http://localhost:5000.
+```
 
-Dependencies
-The following are the main dependencies used in the project:
+By default, the server will run on http://localhost:5000 (or the port you specified in your .env file).
 
-express: Fast, unopinionated, minimalist web framework for Node.js.
-mongoose: Elegant MongoDB object modeling for Node.js.
-dotenv: Loads environment variables from a .env file into process.env.
-nodemon: Automatically restarts the server when file changes are detected (used in development).
-asyncHandler: Utility to handle asynchronous operations in express routes.
-custom utils: ApiError, ApiResponse, and AST related utilities for error handling and AST manipulations.
-You can install all dependencies with:
+## Dependencies
+The following are the key dependencies for the project:
 
-bash
-Copy code
+express: Minimalist web framework for Node.js.
+
+mongoose: MongoDB object modeling for Node.js.
+
+dotenv: Loads environment variables from a .env file.
+
+nodemon: Restarts the server when file changes are detected (for development).
+
+asyncHandler: Utility for handling async operations in express routes.
+
+custom utils: Utilities for handling AST manipulations and API responses (ApiError, ApiResponse, etc.).
+
+You can install all dependencies using:
+```bash
 npm install
-API Endpoints
-Below are the available API endpoints, detailing how to use each controller and its function:
+```
+
+## API Endpoints
 
 1. Create Rule
-POST /api/rules/create
 
-This endpoint creates a new rule by accepting a rule string and converting it into an AST.
+   POST /ruleEng/create
 
-Request Body:
-json
-Copy code
-{
-  "rule_string": "(age > 30 AND salary < 50000) OR department = 'Engineering'"
-}
-Response:
-json
-Copy code
-{
-  "status": 201,
-  "data": {
-    "rule_name": "(age > 30 AND salary < 50000) OR department = 'Engineering'",
-    "ast": { /* abstract syntax tree */ }
-  },
-  "message": "Rule Created Successfully"
-}
+   Creates a new rule by converting the provided rule string into an AST.
+
+   Request:
+   ```json
+   {
+     "rule_string": "(age > 30 AND salary < 50000) OR department = 'Engineering'"
+   }
+   ```
+   Response:
+   ```json
+   {
+       "statusCode": 201,
+       "data": {
+           "rule_name": "department = 'Engineering'",
+           "ast": {
+               "type": "operand",
+               "value": {
+                   "attribute": "department",
+                   "operator": "=",
+                   "value": "Engineering"
+               },
+               "left": null,
+               "right": null,
+               "_id": "6710f9cb8f0f00a7099f3451"
+           },
+           "_id": "6710f9cb8f0f00a7099f3450",
+           "created_at": "2024-10-17T11:49:31.473Z",
+           "updated_at": "2024-10-17T11:49:31.474Z",
+           "__v": 0
+       },
+       "message": "Rule Created Successfully",
+       "success": true
+   }
+   ```
+
 2. Combine Rules
-POST /api/rules/combine
 
-This endpoint combines multiple rules into one using logical operators such as AND or OR.
+   POST /ruleEng/combine
 
-Request Body:
-json
-Copy code
-{
-  "rules": [
-    "age > 30",
-    "salary < 50000",
-    "department = 'Engineering'"
-  ],
-  "operators": ["AND", "OR"]
-}
-Response:
-json
-Copy code
-{
-  "status": 201,
-  "data": {
-    "rule_name": "(age > 30 AND salary < 50000) OR department = 'Engineering'",
-    "ast": { /* combined AST */ }
-  },
-  "message": "Rules combined and saved successfully"
-}
+   Combines multiple rules into one using logical operators like AND or OR.
+
+   Request:
+   ```json
+   {
+     "rules": [
+     "age > 30",
+     "salary < 50000",
+     "department = 'Engineering'"
+    ],
+    "operators": ["AND", "OR"]
+   }
+   ```
+   Response:
+   ```json
+   {
+    "statusCode": 201,
+    "data": {
+        "rule_name": "age > 26 AND OR salary < 60000 AND OR department = 'Marketing'",
+        "ast": {
+            "type": "operator",
+            "value": "AND",
+            "left": {
+                "type": "operator",
+                "left": {
+                    "type": "operand",
+                    "left": null,
+                    "right": null,
+                    "value": {
+                        "attribute": "age",
+                        "operator": ">",
+                        "value": 26
+                    }
+                },
+                "right": {
+                    "type": "operand",
+                    "left": null,
+                    "right": null,
+                    "value": {
+                        "attribute": "salary",
+                        "operator": "<",
+                        "value": 60000
+                    }
+                },
+                "value": "AND"
+            },
+            "right": {
+                "type": "operand",
+                "left": null,
+                "right": null,
+                "value": {
+                    "attribute": "department",
+                    "operator": "=",
+                    "value": "Marketing"
+                }
+            },
+            "_id": "67114bb88480f64ec7daa6f2"
+        },
+        "_id": "67114bb88480f64ec7daa6f1",
+        "created_at": "2024-10-17T17:39:04.348Z",
+        "updated_at": "2024-10-17T17:39:04.348Z",
+        "__v": 0
+    },
+    "message": "Rules combined and saved successfully",
+    "success": true
+   }
+   ```
+
 3. Evaluate Rule
-POST /api/rules/evaluate
 
-This endpoint evaluates a rule by taking in a previously created AST and a data object that contains values for evaluation.
+   POST /ruleEng/evaluate
 
-Request Body:
-json
-Copy code
-{
-  "ast": { /* AST object */ },
-  "data": {
-    "age": 35,
-    "salary": 45000,
-    "department": "Engineering"
-  }
-}
-Response:
-json
-Copy code
-{
-  "status": 200,
-  "success": true,
-  "message": "Rule evaluated to true"
-}
-4. Modify Rule Operator
-PUT /api/rules/modify-operator
+   Evaluates a rule using the provided AST and data for evaluation.
 
-This endpoint modifies the logical operator (AND/OR) in a previously created rule using the rule's ID.
+   Request:
+   ```json
+   {
+      "ast": {
+      "type": "operator",
+      "value": "AND",
+      "left": {
+         "type": "operand",
+         "value": {
+         "attribute": "age",
+         "operator": ">",
+         "value": 30
+       }
+     },
+     "right": {
+        "type": "operand",
+        "value": {
+        "attribute": "salary",
+        "operator": "<",
+        "value": 50000
+      }
+     }
+   },
+   "data": {
+     "age": 35,
+     "salary": 45000
+    }
+   }
+   ```
+   Response:
+   ```json
+   {
+    "success": true,
+    "message": "Both conditions passed for AND"
+   }
+   ```
 
-Request Body:
-json
-Copy code
-{
-  "ruleId": "671100d781832b901896050f",
-  "newOperator": "AND"
-}
-Response:
-json
-Copy code
-{
-  "status": 200,
-  "data": { /* modified AST */ },
-  "message": "Operator successfully modified to 'AND'"
-}
+  4. Modify Rule Operator
+
+     PUT /api/rules/modify-operator
+
+     Request:
+     ```json
+     {
+      "ruleId": "6710f80d6576ff8c098a16d3",
+      "newOperator": "OR"
+     }
+     ```
+
+     Response:
+     ```json
+     {
+       "statusCode": 200,
+       "data": {
+        "type": "operator",
+        "value": "OR",
+        "left": {
+            "type": "operator",
+            "left": {
+                "type": "operand",
+                "left": null,
+                "right": null,
+                "value": {
+                    "attribute": "age",
+                    "operator": ">",
+                    "value": 30
+                }
+            },
+            "right": {
+                "type": "operand",
+                "left": null,
+                "right": null,
+                "value": {
+                    "attribute": "salary",
+                    "operator": "<",
+                    "value": 50000
+                }
+            },
+            "value": "AND"
+        },
+        "right": {
+            "type": "operand",
+            "left": null,
+            "right": null,
+            "value": {
+                "attribute": "department",
+                "operator": "=",
+                "value": "Engineering"
+            }
+        },
+        "_id": "6710f80d6576ff8c098a16d4"
+      },
+      "message": "Operator successfully modified to 'OR', rule_name updated to '(age > 30 OR salary < 
+                  50000) OR (department = 'Engineering')'",
+       "success": true
+     }
+     ```
+
 5. Modify Rule Operand
-PUT /api/rules/modify-operand
 
-This endpoint modifies a specific operand in a rule by providing the rule's ID, the operand's attribute, and the new value.
+     PUT /api/rules/modify-operator
 
-Request Body:
-json
-Copy code
-{
-  "ruleId": "671100d781832b901896050f",
-  "attribute": "age",
-  "newValue": 40
-}
-Response:
-json
-Copy code
-{
-  "status": 200,
-  "data": { /* modified AST */ },
-  "message": "Operand for attribute 'age' successfully modified to '40'"
-}
-Notes
-Ensure that MongoDB is running before starting the app, or the database connection will fail.
-You can test the API endpoints using tools like Postman or cURL.
+     Request:
+     ```json
+     {
+       "ruleId": "671100d781832b901896050f",
+       "attribute": "age",
+       "newValue": 40
+     }
+     ```
+
+     Response:
+     ```json
+     {
+       "statusCode": 200,
+       "data": {
+         "type": "operator",
+         "value": "OR",
+          "left": {
+            "type": "operator",
+            "left": {
+                "type": "operand",
+                "left": null,
+                "right": null,
+                "value": {
+                    "attribute": "age",
+                    "operator": ">",
+                    "value": 40
+                }
+            },
+            "right": {
+                "type": "operand",
+                "left": null,
+                "right": null,
+                "value": {
+                    "attribute": "salary",
+                    "operator": "<",
+                    "value": 50000
+                }
+            },
+            "value": "AND"
+        },
+        "right": {
+            "type": "operand",
+            "left": null,
+            "right": null,
+            "value": {
+                "attribute": "department",
+                "operator": "=",
+                "value": "Engineering"
+            }
+        },
+        "_id": "6710f80d6576ff8c098a16d4"
+    },
+     "message": "Operand for attribute 'age' successfully modified to '40', rule_name updated to '(age 
+                 40 30 OR salary < 50000) OR (department = 'Engineering')'",
+     "success": true
+   }
+     ```

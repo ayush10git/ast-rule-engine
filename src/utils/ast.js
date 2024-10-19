@@ -1,9 +1,9 @@
 class Node {
   constructor(type, left = null, right = null, value = null) {
-    this.type = type; 
+    this.type = type;
     this.left = left;
     this.right = right;
-    this.value = value; 
+    this.value = value;
   }
 }
 
@@ -43,14 +43,14 @@ function createRule(ruleString) {
       while (stack.length && stack[stack.length - 1] !== "(") {
         output.push(stack.pop());
       }
-      stack.pop(); // Remove the '('
+      stack.pop();
     } else {
       const parts = token.match(/(\w+)\s*(>|<|=)\s*(['"][^'"]+['"]|\w+)/);
 
       if (parts) {
         const attribute = parts[1];
         const operator = parts[2];
-        let value = parts[3].replace(/['"]/g, ""); 
+        let value = parts[3].replace(/['"]/g, "");
 
         value = isNaN(value) ? value : Number(value);
 
@@ -98,60 +98,67 @@ function combineRules(rules) {
 }
 
 function evaluateRule(ast, data) {
-    if (ast.type === "operand") {
-      const { attribute, operator, value } = ast.value;
-      let conditionMet = false;
-  
-      if (operator === ">") conditionMet = data[attribute] > value;
-      if (operator === "<") conditionMet = data[attribute] < value;
-      if (operator === "=") conditionMet = data[attribute] === value;
-  
-      if (!conditionMet) {
-        return {
-          success: false,
-          message: `Condition failed: ${attribute} ${operator} ${value}`
-        };
+  if (ast.type === "operand") {
+    const { attribute, operator, value } = ast.value;
+
+    if (!(attribute in data)) {
+      return {
+        success: false,
+        message: `Missing data for attribute: ${attribute}`,
+      };
+    }
+
+    let conditionMet = false;
+
+    if (operator === ">") conditionMet = data[attribute] > value;
+    if (operator === "<") conditionMet = data[attribute] < value;
+    if (operator === "=") conditionMet = data[attribute] === value;
+
+    if (!conditionMet) {
+      return {
+        success: false,
+        message: `Condition failed: ${attribute} ${operator} ${value}`,
+      };
+    }
+    return {
+      success: true,
+      message: `Condition passed: ${attribute} ${operator} ${value}`,
+    };
+  } else if (ast.type === "operator") {
+    const leftResult = evaluateRule(ast.left, data);
+    const rightResult = evaluateRule(ast.right, data);
+
+    if (ast.value === "AND") {
+      if (!leftResult.success) {
+        return leftResult;
+      }
+      if (!rightResult.success) {
+        return rightResult;
       }
       return {
         success: true,
-        message: `Condition passed: ${attribute} ${operator} ${value}`
+        message: "Both conditions passed for AND",
       };
-    } else if (ast.type === "operator") {
-      const leftResult = evaluateRule(ast.left, data);
-      const rightResult = evaluateRule(ast.right, data);
-  
-      if (ast.value === "AND") {
-        if (!leftResult.success) {
-          return leftResult;
-        }
-        if (!rightResult.success) {
-          return rightResult;
-        }
+    }
+
+    if (ast.value === "OR") {
+      if (leftResult.success || rightResult.success) {
         return {
           success: true,
-          message: "Both conditions passed for AND"
+          message: "One condition passed for OR",
         };
       }
-  
-      if (ast.value === "OR") {
-        if (leftResult.success || rightResult.success) {
-          return {
-            success: true,
-            message: "One condition passed for OR"
-          };
-        }
-        return {
-          success: false,
-          message: "Both conditions failed for OR"
-        };
-      }
+      return {
+        success: false,
+        message: "Both conditions failed for OR",
+      };
     }
-    return {
-      success: false,
-      message: "Unknown error occurred during rule evaluation"
-    };
   }
-  
+  return {
+    success: false,
+    message: "Unknown error occurred during rule evaluation",
+  };
+}
 
 function validateRuleString(ruleString) {
   const validOperators = ["AND", "OR", ">", "<", "="];

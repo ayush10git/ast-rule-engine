@@ -184,32 +184,10 @@ function validateRuleString(ruleString) {
   return isValidFormat && isBalanced(ruleString);
 }
 
-function modifyRuleOperator(ast, newOperator) {
-  if (
-    ast &&
-    ast.type === "operator" &&
-    (newOperator === "AND" || newOperator === "OR")
-  ) {
-    ast.value = newOperator;
-  }
-  return ast;
-}
-
-function modifyRuleOperand(ast, attribute, newValue) {
-  if (ast && ast.type === "operand" && ast.value.attribute === attribute) {
-    ast.value.value = newValue;
-  }
-  if (ast && ast.left) modifyRuleOperand(ast.left, attribute, newValue);
-  if (ast && ast.right) modifyRuleOperand(ast.right, attribute, newValue);
-  return ast;
-}
-
 export {
   Node,
   createRule,
   combineRules,
   evaluateRule,
   validateRuleString,
-  modifyRuleOperator,
-  modifyRuleOperand,
 };

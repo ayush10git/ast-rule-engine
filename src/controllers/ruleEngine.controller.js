@@ -2,8 +2,6 @@ import {
   createRule,
   combineRules,
   evaluateRule,
-  modifyRuleOperator,
-  modifyRuleOperand,
 } from "../utils/ast.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -107,96 +105,8 @@ const evaluateRulesController = asyncHandler(async (req, res) => {
   });
 });
 
-const modifyRuleOperatorController = asyncHandler(async (req, res) => {
-  const { ruleId, newOperator } = req.body;
-
-  if (!ruleId || !newOperator) {
-    throw new ApiError(
-      400,
-      "Missing ruleId or newOperator in the request body"
-    );
-  }
-
-  if (newOperator !== "AND" && newOperator !== "OR") {
-    throw new ApiError(400, "Invalid operator. Must be 'AND' or 'OR'");
-  }
-
-  const rule = await Rule.findById(ruleId);
-
-  if (!rule) {
-    throw new ApiError(404, "Rule not found");
-  }
-
-  const modifiedAST = modifyRuleOperator(rule.ast, newOperator);
-
-  const currentRuleName = rule.rule_name;
-  const updatedRuleName = currentRuleName.replace(/(AND|OR)/, newOperator);
-
-  rule.ast = modifiedAST;
-  rule.rule_name = updatedRuleName;
-
-  rule.markModified("ast");
-
-  const updatedRule = await rule.save();
-
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        updatedRule.ast,
-        `Operator successfully modified to '${newOperator}', rule_name updated to '${updatedRuleName}'`
-      )
-    );
-});
-
-const modifyRuleOperandController = asyncHandler(async (req, res) => {
-  const { ruleId, attribute, newValue } = req.body;
-
-  if (!ruleId || !attribute || !newValue) {
-    throw new ApiError(
-      400,
-      "Missing ruleId, attribute, or newValue in the request body"
-    );
-  }
-
-  const rule = await Rule.findById(ruleId);
-
-  if (!rule) {
-    throw new ApiError(404, "Rule not found");
-  }
-
-  const modifiedAST = modifyRuleOperand(rule.ast, attribute, newValue);
-
-  const currentRuleName = rule.rule_name;
-
-  const updatedRuleName = currentRuleName.replace(
-    new RegExp(`(${attribute} [^ ]+)`),
-    `${attribute} ${newValue}`
-  );
-
-  rule.ast = modifiedAST;
-  rule.rule_name = updatedRuleName;
-
-  rule.markModified("ast");
-
-  const updatedRule = await rule.save();
-
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        updatedRule.ast,
-        `Operand for attribute '${attribute}' successfully modified to '${newValue}', rule_name updated to '${updatedRuleName}'`
-      )
-    );
-});
-
 export {
   createRuleEngine,
   combineRulesController,
   evaluateRulesController,
-  modifyRuleOperatorController,
-  modifyRuleOperandController,
 };

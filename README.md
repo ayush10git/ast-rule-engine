@@ -2,6 +2,8 @@
 
 The Rule Engine API is a backend system that allows for creating, modifying, evaluating, and combining rules based on Abstract Syntax Trees (AST). The API supports dynamic rule manipulation using logical operators and operands.
 
+#Setting Up the Backend - Node.js
+
 ## Installation
 
 Ensure you have Node.js and MongoDB installed before starting.
@@ -19,8 +21,9 @@ npm install
 ```
 
 3. Create a .env file at the root of the project and add the following variables:
+   You can use my mongodb which I use for testing
 ```bash
-MONGO_URI=mongodb+srv://<username>:<password>@<cluster-url>
+MONGO_URI=mongodb+srv://ayushg31:ayush123@ayushcluster.slpkxto.mongodb.net
 PORT=5000
 ```
 Replace MONGO_URI with your MongoDB connection string if different, and adjust PORT as necessary.
@@ -209,9 +212,37 @@ npm install
    }
    ```
 
-## Note:
-Ensure MongoDB is running before starting the app, or the database connection will fail.
+#To run tests
+```bash
+   npm test
+   ```
 
+## Note:
 You can use tools like Postman
 
-Also, update the ruleId field with valid Rule ID that you have created in your Database
+## Frontend - React.js
+
+# Installation
+
+Ensure you have Node.js and MongoDB installed before starting.
+1. Clone the repository:
+
+```bash
+git clone https://github.com/ayush10git/ast-rule-engine/tree/frontend
+```
+
+2. Install the required dependencies:
+
+```bash
+npm install
+```
+
+## Running the App
+To start the app in development mode, use:
+```bash
+npm start
+```
+
+# Note: Make sure the Backend is Running, while running the React App.
+
+   

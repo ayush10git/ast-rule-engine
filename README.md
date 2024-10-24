@@ -10,8 +10,7 @@ Ensure you have Node.js and MongoDB installed before starting.
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/your-repo/rule-engine.git
-cd rule-engine
+git clone https://github.com/ayush10git/ast-rule-engine
 ```
 
 2. Install the required dependencies:
